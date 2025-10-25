@@ -6,6 +6,7 @@ using System.Net;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.IO;
 using Hi3Helper.Sophon.Structs;
 using Hi3Helper.Sophon;
 using System.Threading.Tasks.Dataflow;
@@ -92,9 +93,11 @@ namespace Core
 
                     try
                     {
-                        foreach (string fileTemp in Directory.EnumerateFiles(outputDir, "*_tempUpdate", SearchOption.AllDirectories))
+                        (int resumeFiles, long resumeBytes) = GetResumeCacheStats(outputDir);
+                        if (resumeFiles > 0 && !Program.silent)
                         {
-                            File.Delete(fileTemp);
+                            string resumeSizeUnit = Utils.FormatSize(resumeBytes);
+                            Console.WriteLine($"* Found {resumeFiles} in-progress file(s) ({resumeSizeUnit}) from previous runs. Resuming download...");
                         }
 
                         _isRetry = false;
@@ -126,7 +129,10 @@ namespace Core
                                 string outputPath = Path.Combine(outputDir, asset.AssetName);
                                 string outputTempPath = outputPath + "_tempUpdate";
 
-                                System.IO.File.Move(outputTempPath, outputPath, true);
+                                if (System.IO.File.Exists(outputTempPath))
+                                {
+                                    System.IO.File.Move(outputTempPath, outputPath, true);
+                                }
                             },
                         new ExecutionDataflowBlockOptions
                         {
@@ -181,6 +187,38 @@ namespace Core
                         return;
                 }
             }
+        }
+
+        private static (int Count, long Size) GetResumeCacheStats(string outputDir)
+        {
+            if (!Directory.Exists(outputDir))
+            {
+                return (0, 0);
+            }
+
+            int count = 0;
+            long size = 0;
+
+            foreach (string tempFile in Directory.EnumerateFiles(outputDir, "*_tempUpdate", SearchOption.AllDirectories))
+            {
+                try
+                {
+                    FileInfo info = new FileInfo(tempFile);
+                    if (info.Exists)
+                    {
+                        count++;
+                        size += info.Length;
+                    }
+                }
+                catch (IOException)
+                {
+                }
+                catch (UnauthorizedAccessException)
+                {
+                }
+            }
+
+            return (count, size);
         }
     }
 }

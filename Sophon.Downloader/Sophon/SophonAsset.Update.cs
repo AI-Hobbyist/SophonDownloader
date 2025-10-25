@@ -90,6 +90,10 @@ namespace Hi3Helper.Sophon
             FileInfo outputOldFileInfo     = new FileInfo(outputOldPath).UnassignReadOnlyFromFileInfo();
             FileInfo outputNewFileInfo     = new FileInfo(outputNewPath).UnassignReadOnlyFromFileInfo();
             FileInfo outputNewTempFileInfo = new FileInfo(outputNewTempPath).UnassignReadOnlyFromFileInfo();
+            if (!outputNewTempFileInfo.Exists && outputNewFileInfo.Exists)
+            {
+                outputNewTempFileInfo = outputNewFileInfo;
+            }
 
             foreach (SophonChunk chunk in Chunks)
             {

@@ -1,4 +1,4 @@
-# SophonDownloader
+﻿# SophonDownloader
 使用新的下载方法下载 mihoyo 资产
 
 [English][p:en-us] | [中文][p:zh-cn]
@@ -59,6 +59,8 @@
 
 这是在 Genshin 停止提供更新的 zip 文件后匆忙制作的，请报告任何问题，并请注意 ZZZ 也使用 Sophon，但它没有针对该游戏进行测试
 
+- 再次运行相同命令会自动检测并继续 `*_tempUpdate` 中的进度；如需重新开始请手动清理这些临时文件。
+
 ---
 
 # 致谢
@@ -67,3 +69,7 @@
 
 [p:en-us]: README.md
 [p:zh-cn]: README_zh-cn.md
+
+
+
+
